@@ -8,12 +8,16 @@ import requests
 
 from pitchcheck.sec import load_env
 
-DEFAULT_MODEL = "deepseek/deepseek-v4-flash"
+DEFAULT_MODEL = os.environ.get("PITCHCHECK_MODEL", "google/gemini-3.8-flash")
 URL = "https://openrouter.ai/api/v1/chat/completions"
 
 
 def chat(
-    prompt: str, model: str = DEFAULT_MODEL, max_tokens: int = 16000, effort: str = "low"
+    prompt: str,
+    model: str = DEFAULT_MODEL,
+    max_tokens: int = 16000,
+    effort: str = "low",
+    json_mode: bool = False,
 ) -> dict:
     """Send one user message. Returns the reply text and what the call used.
 
@@ -25,18 +29,18 @@ def chat(
     key = os.environ.get("OPENROUTER_API_KEY", "")
     if not key or "replace-with-your-key" in key:
         raise RuntimeError("Set OPENROUTER_API_KEY in .env (see .env.example).")
+    body = {
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+        "max_tokens": max_tokens,
+        "temperature": 0,
+        "reasoning": {"effort": effort},
+        "usage": {"include": True},
+    }
+    if json_mode:
+        body["response_format"] = {"type": "json_object"}
     response = requests.post(
-        URL,
-        headers={"Authorization": f"Bearer {key}"},
-        json={
-            "model": model,
-            "messages": [{"role": "user", "content": prompt}],
-            "max_tokens": max_tokens,
-            "temperature": 0,
-            "reasoning": {"effort": effort},
-            "usage": {"include": True},
-        },
-        timeout=180,
+        URL, headers={"Authorization": f"Bearer {key}"}, json=body, timeout=180
     )
     response.raise_for_status()
     body = response.json()

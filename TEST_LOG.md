@@ -7,7 +7,7 @@ Log as you go. A check you ran beats a check you planned. Never invent a result,
 *The easy option your product has to beat: doing it by hand, or pasting it into a plain AI chat.*
 
 - **Baseline we used:** A plain AI chat. The deck's text is pasted in with one fixed prompt asking it to list (1) figures that do not match the company's latest SEC filings and (2) numbers the pitch states two different ways. No tools, no SEC data. The prompt is in `checks/baseline.py`.
-- **Model or tool:** `deepseek/deepseek-v4-flash` through OpenRouter, temperature 0, thinking capped at a low level. PitchCheck will use the same model, so the comparison isolates what the code adds. The first runs used `anthropic/claude-sonnet-5.5`; the results table below is from those runs, and the model comparison under it shows the switch.
+- **Model or tool:** run on five models through OpenRouter, temperature 0 (see the comparison below). PitchCheck itself now uses `google/gemini-3.8-flash`; the baseline on that model has been run on deck B only so far. The first runs used `anthropic/claude-sonnet-5.5`; the results table below is from those runs, and the model comparison under it shows the switch.
 
 **What counts, written down before the first run (November 25):**
 
@@ -45,11 +45,26 @@ No model checked a latest-quarter figure against a filing. DeepSeek V4 Flash was
 
 | # | Check | Input | Baseline result | Our result | Notes |
 | --- | --- | --- | --- | --- | --- |
-| 1 | | | | | |
-| 2 | | | | | |
-| 3 | | | | | |
-| 4 | | | | | |
-| 5 | Meant to break it: | | | | |
+| 1 | A clean pitch gets no flags | Deck A, a healthcare issuer (real) | Checked nothing against the latest filings. From memory, flagged two older revenue figures that are within 1%. | 9 figures matched, 0 flagged, 6 non-GAAP figures labeled "not checked". 11 seconds. | Nov 25. All 9 in-scope figures I had listed by hand were found. |
+| 2 | A clean pitch with charts and tables gets no flags | Deck B, a technology issuer (real) | Confirmed no figure against filings. | 27 figures matched, 0 flagged, 19 non-GAAP labeled. 24 seconds. | Nov 25. Includes nine quarters of revenue read from a chart, with fourth quarters worked out from the annual figure. |
+| 3 | Planted errors are caught | Deck B's text with three figures changed: revenue with two digits swapped, debt left at the level before a repayment, and a wrong buyback amount (**synthetic**) | Not run yet | 3 of 3 flagged, 0 false flags | Nov 25. The errors are mine, not a member's. |
+| 4 | [A units slip, such as millions written as billions] | | | | Not run yet |
+| 5 | Meant to break it: a bank | Deck C, a bank (real) | Confirmed no figure against filings. | Found only 3 net income figures, all matching. Nothing on deposits, loans or charge-offs. | Nov 25. An earlier build also raised 5 false flags here; see "Failures found while building". The page now says it is not built for banks. |
+
+**Choosing the model that reads the deck (November 25).** Same decks, same prompt, thinking on.
+
+| Model | Deck A | Deck B | Deck C | Cost per deck | Time |
+| --- | --- | --- | --- | --- | --- |
+| DeepSeek V4 Flash | 8 matched, 0 false flags | 18 matched, **9 false flags** (it read a chart's billings line as revenue) | 3 matched, 0 false flags | $0.0005 to $0.003 | 19 to 44 s |
+| Gemini 3.8 Flash (chosen) | 9 matched, 0 false flags | 21 to 27 matched, 0 false flags | 3 matched, 0 false flags | $0.007 to $0.024 | 4 to 24 s |
+
+DeepSeek is about ten times cheaper, but a false flag costs the reviewer's trust, so Gemini 3.8 Flash reads the deck. The baseline prompt was also run on Gemini for deck B, with the same result as the other models.
+
+**Failures found while building (November 25):**
+
+- **Look-alike figures.** With thinking turned off to save time, the model labeled "cash and investments" as cash, and a bank's dividends from its subsidiary as operating cash flow. That produced 1, 4 and 5 false flags on the three decks. Fix: thinking stays on, and code now drops a cash figure whose quote mentions investments and any figure whose quote says "parent".
+- **Table quotes.** The first build threw out 9 correct figures on deck B because the model quoted a table row with columns skipped, and the quote check wanted the exact run of text. Fix: each piece of the quote has to appear on the same slide.
+- **Quarterly cash flow.** A third-quarter buyback figure came back "not found" because cash flow statements report year to date only. Fix: the quarter is worked out as this year to date minus the one before, and the row says so.
 
 ## 3. Outside testers (2–3, no coaching)
 

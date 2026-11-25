@@ -62,11 +62,12 @@ Pull before you start (`git pull`), commit when something works, and push when y
 
 ## Running it
 
-So far it reads a deck and shows the issuer's reported figures from SEC filings, each with the filing it came from. It does not compare the two yet.
+It reads a deck, asks a model to list the financial figures the deck claims, and compares each one in code with the issuer's SEC filings.
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
 uvicorn app:app --reload          # the web page, at http://127.0.0.1:8000
+python checks/run_deck.py pitches/deck.pptx TICKER 2026-11-17   # one deck, from the command line
 python -m pitchcheck.sec --cik 64803
 python checks/check_sec.py
 ```

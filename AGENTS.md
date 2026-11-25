@@ -6,14 +6,14 @@ Your agent reads this file first. Keep it short and current.
 
 - **What this builds:** PitchCheck reads a bond pitch and checks its reported financial figures against the issuer's SEC filings. A person reviews every flag.
 - **Who it's for:** see `INTENT.md`
-- **Stack:** Python 3.11. `app.py` is the web page (FastAPI). `pitchcheck/sec.py` pulls filing figures from SEC's public company-facts API, `pitchcheck/deck.py` reads .pptx and .pdf decks, and `pitchcheck/llm.py` calls a model through OpenRouter. Not built yet: pulling the claims out of a deck and comparing them to the filings.
+- **Stack:** Python 3.11. `app.py` is the web page (FastAPI). `pitchcheck/sec.py` pulls filing figures from SEC's public company-facts API, `pitchcheck/deck.py` reads .pptx and .pdf decks, `pitchcheck/extract.py` asks a model (through `pitchcheck/llm.py` and OpenRouter) to list the figures a deck claims, and `pitchcheck/compare.py` sets each figure's status in code.
 - **Product Page:** `docs/index.md`, plain Markdown that GitHub Pages turns into the team's public page. Fill it only with facts from `INTENT.md` and `TEST_LOG.md`, and leave a [bracket] where the team has no answer yet.
 
 ## Commands
 
 - **Install:** `python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`
 - **Run:** `uvicorn app:app --reload` serves the page at http://127.0.0.1:8000. `python -m pitchcheck.sec --cik 64803` prints one issuer's filing figures; a ticker works in place of `--cik` once `SEC_USER_AGENT` is set in `.env`.
-- **Check:** `python checks/check_sec.py`. `python checks/baseline.py <deck>` runs the plain-chat baseline and costs about $0.13 a deck, so ask first.
+- **Check:** `python checks/check_sec.py`. `python checks/run_deck.py <deck> <ticker> <date>` runs the checker on one deck and `python checks/baseline.py <deck>` runs the plain-chat baseline; each costs one to two cents, so ask before running many.
 
 ## Rules
 

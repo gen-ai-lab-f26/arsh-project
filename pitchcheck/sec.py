@@ -354,6 +354,160 @@ def _instant_figure(cik: int, facts: dict, metric: str, as_of: str | None) -> Fi
     return best or Figure(metric, label, "instant", note="No matching tag in SEC data.")
 
 
+def load_issuer(ticker: str | None = None, cik: int | None = None) -> tuple[int, dict]:
+    """Find an issuer by ticker or SEC number and fetch its reported facts."""
+    if cik is None:
+        if not ticker:
+            raise LookupError("Give a ticker or a CIK.")
+        cik = ticker_to_cik(ticker)
+    try:
+        return cik, company_facts(cik)
+    except requests.HTTPError as error:
+        if error.response is not None and error.response.status_code == 404:
+            raise LookupError(f"SEC has no financial data for CIK {cik}.") from error
+        raise
+
+
+def period_figure(
+    cik: int, facts: dict, metric: str, kind: str, end: str, as_of: str | None = None
+) -> Figure:
+    """One figure for one stated period, such as revenue for the year ended 2024-12-31.
+
+    `kind` is "FY", "Q", "YTD", "LTM" or "instant". `end` is the period's last
+    day. Returns a not-found Figure when the filings have nothing for it.
+    """
+    target = _d(end)
+    if metric in INSTANT_METRICS:
+        label, options = INSTANT_METRICS[metric]
+        for option in options:
+            sources, missing, complete = [], [], True
+            for tag, must in option:
+                rows = _rows(facts, tag, as_of, duration=False)
+                row = next((r for r in rows if _near(_d(r["end"]), target)), None)
+                if row:
+                    sources.append(_source(cik, tag, row))
+                elif must:
+                    complete = False
+                    break
+                else:
+                    missing.append(tag)
+            if complete and sources:
+                note = (
+                    "Sum of " + " and ".join(s.tag for s in sources) + "."
+                    if len(sources) > 1
+                    else ""
+                )
+                if missing:
+                    note = (note + " " if note else "") + (
+                        f"{', '.join(missing)} not reported at this date, counted as zero."
+                    )
+                return Figure(
+                    metric, label, "instant", None, sources[0].end,
+                    sum(s.value for s in sources), sources, note,
+                )
+        return Figure(metric, label, "instant", end=end, note="No filing figure for this date.")
+
+    label, tags = DURATION_METRICS[metric]
+    for tag in tags:
+        rows = _rows(facts, tag, as_of, duration=True)
+        fig = _period_from_rows(cik, metric, label, tag, rows, kind, target)
+        if fig is not None:
+            return fig
+    return Figure(metric, label, kind, end=end, note="No filing figure for this period.")
+
+
+def _period_from_rows(
+    cik: int, metric: str, label: str, tag: str, rows: list[dict], kind: str, target: date
+) -> Figure | None:
+    def figure(row: dict, period: str, note: str = "") -> Figure:
+        return Figure(
+            metric, label, period, row["start"], row["end"], float(row["val"]),
+            [_source(cik, tag, row)], note,
+        )
+
+    def is_annual(row: dict) -> bool:
+        return ANNUAL_DAYS[0] <= _days(row) <= ANNUAL_DAYS[1]
+
+    ending = [r for r in rows if _near(_d(r["end"]), target)]
+    annual = next((r for r in ending if is_annual(r)), None)
+    partial = [r for r in ending if _days(r) < ANNUAL_DAYS[0]]
+    year = timedelta(days=365)
+
+    if kind == "FY":
+        return figure(annual, "FY") if annual else None
+
+    if kind == "Q":
+        quarter = next(
+            (r for r in ending if QUARTER_DAYS[0] <= _days(r) <= QUARTER_DAYS[1]), None
+        )
+        if quarter:
+            return figure(quarter, "Q")
+        if annual:  # a fourth quarter is not reported on its own
+            nine = next(
+                (
+                    r for r in rows
+                    if _near(_d(r["start"]), _d(annual["start"])) and 260 <= _days(r) <= 285
+                ),
+                None,
+            )
+            if nine:
+                return Figure(
+                    metric, label, "Q", None, annual["end"],
+                    float(annual["val"]) - float(nine["val"]),
+                    [_source(cik, tag, annual), _source(cik, tag, nine)],
+                    "Fourth quarter worked out as the fiscal year minus its first nine months.",
+                )
+        if partial:  # cash flow items are only reported year to date
+            ytd = max(partial, key=_days)
+            earlier = next(
+                (
+                    r for r in rows
+                    if r["start"] == ytd["start"]
+                    and QUARTER_DAYS[0] <= (_d(ytd["end"]) - _d(r["end"])).days <= QUARTER_DAYS[1]
+                ),
+                None,
+            )
+            if earlier:
+                return Figure(
+                    metric, label, "Q", None, ytd["end"],
+                    float(ytd["val"]) - float(earlier["val"]),
+                    [_source(cik, tag, ytd), _source(cik, tag, earlier)],
+                    "Quarter worked out as this year to date minus the year to date a quarter earlier.",
+                )
+        return None
+
+    if kind == "YTD":
+        return figure(max(partial, key=_days), "YTD") if partial else None
+
+    if kind == "LTM":
+        if annual:
+            return figure(annual, "LTM", "Same as the fiscal year.")
+        if not partial:
+            return None
+        ytd = max(partial, key=_days)
+        start, end = _d(ytd["start"]), _d(ytd["end"])
+        prior_year = next(
+            (r for r in rows if is_annual(r) and _near(_d(r["end"]), start - timedelta(days=1))),
+            None,
+        )
+        prior_ytd = next(
+            (
+                r for r in rows
+                if _near(_d(r["start"]), start - year) and _near(_d(r["end"]), end - year)
+            ),
+            None,
+        )
+        if not (prior_year and prior_ytd):
+            return None
+        return Figure(
+            metric, label, "LTM", (end - year + timedelta(days=1)).isoformat(), ytd["end"],
+            float(prior_year["val"]) + float(ytd["val"]) - float(prior_ytd["val"]),
+            [_source(cik, tag, r) for r in (prior_year, ytd, prior_ytd)],
+            "Last fiscal year plus this year to date, minus the same span a year ago.",
+        )
+    return None
+
+
 def filing_figures(
     ticker: str | None = None, cik: int | None = None, as_of: str | None = None
 ) -> dict:
@@ -362,16 +516,7 @@ def filing_figures(
     `as_of` ignores anything filed after that date, so a pitch can be checked
     against the filings that existed when it was written.
     """
-    if cik is None:
-        if not ticker:
-            raise LookupError("Give a ticker or a CIK.")
-        cik = ticker_to_cik(ticker)
-    try:
-        facts = company_facts(cik)
-    except requests.HTTPError as error:
-        if error.response is not None and error.response.status_code == 404:
-            raise LookupError(f"SEC has no financial data for CIK {cik}.") from error
-        raise
+    cik, facts = load_issuer(ticker, cik)
     figures: list[Figure] = []
     for metric in DURATION_METRICS:
         figures.extend(_duration_figures(cik, facts, metric, as_of))

@@ -5,7 +5,7 @@
 
 PitchCheck checks the numbers in a bond pitch against the issuer's SEC filings before a student fund's investment committee votes on it.
 
-**Status, November 25:** it reads a deck and pulls the issuer's figures from SEC filings. It does not compare the two yet. The early version is online and needs an access code.
+**Status, November 25:** the first full version is online: it reads a deck, lists the figures it claims and compares each with the issuer's SEC filings. It needs an access code, and no outside tester has used it yet.
 
 [See it work](#see-it-work) · [Try it](https://arsh-project.onrender.com) · [Code](https://github.com/gen-ai-lab-f26/arsh-project)
 
@@ -25,7 +25,7 @@ PitchCheck checks the numbers in a bond pitch against the issuer's SEC filings b
 
 ## How it works
 
-Steps 1 and 3 run today. Steps 2, 4 and 5 are not built yet.
+All five steps run today, except that step 4's accept-or-dismiss buttons are not built: the writer reads the flagged rows on the page.
 
 1. A bond pitch goes in as a .pptx or .pdf file.
 2. The AI reads the pitch and lists the numbers it claims. It never supplies a financial figure.
