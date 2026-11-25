@@ -10,6 +10,9 @@ credentials.json
 # Real pitches used for testing (the repo is public)
 pitches/
 
+# Copies of SEC data fetched in the last day
+.cache/
+
 # Agent state
 .claude/
 .codex/

@@ -6,14 +6,14 @@ Your agent reads this file first. Keep it short and current.
 
 - **What this builds:** PitchCheck reads a bond pitch, checks its reported financial figures against the issuer's SEC filings, and lists numbers the deck states two different ways. A person reviews every flag.
 - **Who it's for:** see `INTENT.md`
-- **Stack:** Planned: Python 3.11, SEC's public company-facts API, the OpenRouter API to pull the claims out of a pitch, one HTML page. [Update when the first code lands.]
+- **Stack:** Python 3.11 with `requests`, and SEC's public company-facts API (`pitchcheck/sec.py`). Planned, not built: the OpenRouter API to pull the claims out of a pitch, and one HTML page.
 - **Product Page:** `docs/index.md`, plain Markdown that GitHub Pages turns into the team's public page. Fill it only with facts from `INTENT.md` and `TEST_LOG.md`, and leave a [bracket] where the team has no answer yet.
 
 ## Commands
 
-- **Install:** `[For example: python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt]`
-- **Run:** `[For example: python app.py]`
-- **Check:** `[For example: python tests/check.py]`
+- **Install:** `python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`
+- **Run:** `python -m pitchcheck.sec --cik 64803` prints one issuer's filing figures. A ticker works in place of `--cik` once `SEC_USER_AGENT` is set in `.env`.
+- **Check:** `python checks/check_sec.py`
 
 ## Rules
 

@@ -62,4 +62,12 @@ Pull before you start (`git pull`), commit when something works, and push when y
 
 ## Running it
 
-[Ask your agent to write the exact install and run commands here and in `AGENTS.md`.]
+Only the first piece exists so far: it prints an issuer's reported figures from SEC filings, each with the filing it came from.
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+python -m pitchcheck.sec --cik 64803
+python checks/check_sec.py
+```
+
+`--cik` is the issuer's SEC number. To look an issuer up by ticker, copy `.env.example` to `.env` and set `SEC_USER_AGENT`.
