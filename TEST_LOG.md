@@ -7,7 +7,7 @@ Log as you go. A check you ran beats a check you planned. Never invent a result,
 *The easy option your product has to beat: doing it by hand, or pasting it into a plain AI chat.*
 
 - **Baseline we used:** A plain AI chat. The deck's text is pasted in with one fixed prompt asking it to list (1) figures that do not match the company's latest SEC filings and (2) numbers the pitch states two different ways. No tools, no SEC data. The prompt is in `checks/baseline.py`.
-- **Model or tool:** `anthropic/claude-sonnet-5.5` through OpenRouter, temperature 0. PitchCheck will use the same model, so the comparison isolates what the code adds.
+- **Model or tool:** `deepseek/deepseek-v4-flash` through OpenRouter, temperature 0, thinking capped at a low level. PitchCheck will use the same model, so the comparison isolates what the code adds. The first runs used `anthropic/claude-sonnet-5.5`; the results table below is from those runs, and the model comparison under it shows the switch.
 
 **What counts, written down before the first run (November 25):**
 
@@ -26,6 +26,18 @@ Log as you go. A check you ran beats a check you planned. Never invent a result,
 | C | | Not run. The account ran out of credit (the call was refused) before this deck. | |
 
 **What this changed (two decks):** a plain chat is good at finding numbers a deck states two different ways, and noisy about it. It cannot check anything against a filing newer than its training data. I had set the rule before the second run: if the chat quoted both position sizes in deck B, the deck-against-itself check gets cut. It did, so that check is cut and the claim in `INTENT.md` now covers the filing check only.
+
+**Choosing the model (November 25).** Sonnet cost about $0.13 a deck, so I took the best-value models from the Arena text leaderboard's cost chart and ran the same baseline prompt on them.
+
+| Model | Deck A | Deck B | Deck C | Cost per deck |
+| --- | --- | --- | --- | --- |
+| Claude Sonnet 5.5 | No filing check. Two revenue flags from memory, both right. | Caught the position size | Not run | $0.13 |
+| DeepSeek V4 Flash (now the default) | Said it cannot verify against filings | Caught the position size | Caught the spread | $0.001 to $0.002 |
+| GLM-5.3-Flash | No filing check. Two revenue flags from memory, both right. | Answer broke down into garbage text and missed the position size | Caught the spread and the date | $0.003 to $0.008 |
+| MiMo-V2.6-Pro | Not run | Empty answer: it spent the whole limit thinking | Not run | $0.018 |
+| Gemini 3.8 Flash | Not run | Caught the position size | Not run | $0.012 |
+
+No model checked a latest-quarter figure against a filing. DeepSeek V4 Flash was the cheapest that gave a clean answer on all three decks. Gemini 3.8 Flash is the fallback. Whether DeepSeek is good enough at pulling claims out of a deck is still to be tested against the answer key.
 
 **The two failed tries:** the first calls came back empty because the model's thinking used the whole 4,000-token limit. Raising the limit to 16,000 fixed it.
 

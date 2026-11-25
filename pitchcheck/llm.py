@@ -8,15 +8,18 @@ import requests
 
 from pitchcheck.sec import load_env
 
-DEFAULT_MODEL = "anthropic/claude-sonnet-5.5"
+DEFAULT_MODEL = "deepseek/deepseek-v4-flash"
 URL = "https://openrouter.ai/api/v1/chat/completions"
 
 
-def chat(prompt: str, model: str = DEFAULT_MODEL, max_tokens: int = 16000) -> dict:
+def chat(
+    prompt: str, model: str = DEFAULT_MODEL, max_tokens: int = 16000, effort: str = "low"
+) -> dict:
     """Send one user message. Returns the reply text and what the call used.
 
     The model thinks before it answers and the thinking counts against
-    max_tokens, so the limit has to leave room for both.
+    max_tokens. `effort` caps the thinking at a share of that limit ("low" is
+    about a fifth), so there is always room left for the answer.
     """
     load_env()
     key = os.environ.get("OPENROUTER_API_KEY", "")
@@ -30,6 +33,7 @@ def chat(prompt: str, model: str = DEFAULT_MODEL, max_tokens: int = 16000) -> di
             "messages": [{"role": "user", "content": prompt}],
             "max_tokens": max_tokens,
             "temperature": 0,
+            "reasoning": {"effort": effort},
             "usage": {"include": True},
         },
         timeout=180,
