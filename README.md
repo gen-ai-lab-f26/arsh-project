@@ -1,6 +1,6 @@
 # PitchCheck
 
-> **One line:** For members of a student fund's investment committee. It checks the numbers in a bond pitch against the issuer's SEC filings, and against the deck itself, before the vote.
+> **One line:** For members of a student fund's investment committee. It checks the numbers in a bond pitch against the issuer's SEC filings before the vote.
 
 - **Team:** Arsh Jain (solo)
 - **Product Page:** https://gen-ai-lab-f26.github.io/arsh-project/
@@ -62,10 +62,11 @@ Pull before you start (`git pull`), commit when something works, and push when y
 
 ## Running it
 
-Only the first piece exists so far: it prints an issuer's reported figures from SEC filings, each with the filing it came from.
+So far it reads a deck and shows the issuer's reported figures from SEC filings, each with the filing it came from. It does not compare the two yet.
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+uvicorn app:app --reload          # the web page, at http://127.0.0.1:8000
 python -m pitchcheck.sec --cik 64803
 python checks/check_sec.py
 ```

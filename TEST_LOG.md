@@ -22,10 +22,10 @@ Log as you go. A check you ran beats a check you planned. Never invent a result,
 | Deck | Date | Baseline result | Cost |
 | --- | --- | --- | --- |
 | A | Nov 25 | **Filings:** it said it has no filing access and that the latest quarter is after its training data, so it checked nothing against the newest 10-Q. From memory it flagged the 2023 and 2024 revenue figures, and its remembered values match the 10-Ks (the pitch is 0.3% and 0.6% under). It could not check 2025, the trailing twelve months or the quarter. Two other "from memory" doubts could not be confirmed either way. **Two ways:** it listed 12 items. About three are real questions for the writer (two debt totals that do not reconcile, a net leverage ratio that does not tie, debt down $3.9bn against $4.1bn repaid). The rest are rounding (5.31% and 5.32%) or differences the pitch already explains. | $0.14, plus $0.10 on two failed tries |
-| B | | Not run yet | |
-| C | | Not run yet | |
+| B | Nov 25 | **Filings:** it said it cannot open SEC filings and that the latest quarter is beyond what it knows, so it confirmed no figure. **Two ways:** it caught the position size, called it the most important item, and quoted both versions. This run did not include the deck's chart data, which the reader could not extract yet. | $0.13 |
+| C | | Not run. The account ran out of credit (the call was refused) before this deck. | |
 
-**What this changes (one deck so far):** a plain chat is good at finding numbers a deck states two different ways, and noisy about it. It cannot check anything against a filing newer than its training data. So the filing check is where PitchCheck has to earn its place, and its consistency list has to be shorter and cleaner than the baseline's to be worth having.
+**What this changed (two decks):** a plain chat is good at finding numbers a deck states two different ways, and noisy about it. It cannot check anything against a filing newer than its training data. I had set the rule before the second run: if the chat quoted both position sizes in deck B, the deck-against-itself check gets cut. It did, so that check is cut and the claim in `INTENT.md` now covers the filing check only.
 
 **The two failed tries:** the first calls came back empty because the model's thinking used the whole 4,000-token limit. Raising the limit to 16,000 fixed it.
 

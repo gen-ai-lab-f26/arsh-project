@@ -37,9 +37,27 @@ def _read_pptx(path: Path) -> str:
     return "\n\n".join(parts)
 
 
+def _chart_text(chart) -> list[str]:
+    """The numbers behind a chart, one line per series."""
+    lines = []
+    try:
+        for plot in chart.plots:
+            labels = [str(c) for c in plot.categories]
+            for series in plot.series:
+                points = ", ".join(f"{l}: {v}" for l, v in zip(labels, series.values))
+                lines.append(f"[Chart] {series.name}: {points}")
+    except Exception:  # an unusual chart type; say so instead of failing the deck
+        lines.append("[Chart: its data could not be read]")
+    return lines
+
+
 def _shape_text(shape) -> list[str]:
     lines = []
-    if getattr(shape, "has_table", False) and shape.has_table:
+    if getattr(shape, "has_chart", False) and shape.has_chart:
+        lines.extend(_chart_text(shape.chart))
+    elif shape.shape_type == 13:  # a picture; any numbers in it are not read
+        lines.append("[Picture: not read]")
+    elif getattr(shape, "has_table", False) and shape.has_table:
         for row in shape.table.rows:
             lines.append(" | ".join(cell.text.strip() for cell in row.cells))
     elif getattr(shape, "has_text_frame", False) and shape.has_text_frame:

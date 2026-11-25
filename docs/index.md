@@ -3,9 +3,9 @@
 <!-- This file is your Product Page. Replace everything in [brackets] with your own words.
      Your page updates about a minute after you commit. Never put an API key here: this page is public. -->
 
-PitchCheck checks the numbers in a bond pitch against the issuer's SEC filings, and against the deck itself, before a student fund's investment committee votes on it.
+PitchCheck checks the numbers in a bond pitch against the issuer's SEC filings before a student fund's investment committee votes on it.
 
-**Status, November 24:** the product brief is written. The tool is not built yet.
+**Status, November 25:** it reads a deck and pulls the issuer's figures from SEC filings. It does not compare the two yet, and it is not online yet.
 
 [See it work](#see-it-work) · [Try it: no link yet] · [Code](https://github.com/gen-ai-lab-f26/arsh-project)
 
@@ -15,7 +15,7 @@ PitchCheck checks the numbers in a bond pitch against the issuer's SEC filings, 
 
 **Today:** A member builds a deck from company filings, data terminals and broker quotes and uploads it to the fund's shared drive. Nobody checks the numbers before the IC votes.
 
-**With PitchCheck:** Paste the pitch in. A table comes back with every number, whether it matches the filing, and a link to the filing. A second list shows numbers the deck states two different ways. The reviewer reads only the flagged rows.
+**With PitchCheck:** Paste the pitch in. A table comes back with every number, whether it matches the filing, and a link to the filing. The reviewer reads only the flagged rows.
 
 ## See it work
 
@@ -25,17 +25,17 @@ PitchCheck checks the numbers in a bond pitch against the issuer's SEC filings, 
 
 ## How it works
 
-This is the plan. Nothing below runs yet.
+Steps 1 and 3 run today. Steps 2, 4 and 5 are not built yet.
 
-1. A bond pitch goes in as text.
+1. A bond pitch goes in as a .pptx or .pdf file.
 2. The AI reads the pitch and lists the numbers it claims. It never supplies a financial figure.
-3. Code pulls the issuer's reported figures from SEC's structured data and does the arithmetic: trailing twelve months, leverage and coverage. Prices, spreads and ratings are labeled "not in filings", not guessed.
-4. The writer accepts each flag or dismisses it with a reason. PitchCheck never edits the pitch.
-5. A table of every number with its status and filing link comes out, plus a list of numbers the deck states two different ways.
+3. Code pulls the issuer's reported figures from SEC's structured data and does the arithmetic, such as trailing twelve months. Prices, spreads and ratings are labeled "not in filings", not guessed.
+4. The writer confirms the issuer and the pitch date, then accepts each flag or dismisses it with a reason. PitchCheck never edits the pitch.
+5. A table of every number with its status and filing link comes out.
 
 ## Evidence
 
-Baseline: [doing it by hand, or a plain AI chat]. The full log is in [TEST_LOG.md](https://github.com/gen-ai-lab-f26/arsh-project/blob/main/TEST_LOG.md).
+Baseline: a plain AI chat with the deck's text pasted in and no tools. The full log is in [TEST_LOG.md](https://github.com/gen-ai-lab-f26/arsh-project/blob/main/TEST_LOG.md).
 
 | Check | Baseline | PitchCheck |
 | --- | --- | --- |
@@ -73,13 +73,15 @@ Baseline: [doing it by hand, or a plain AI chat]. The full log is in [TEST_LOG.m
 
 **Repo setup.** Made this repo from the class template, turned on the Product Page, and wrote the product brief in [INTENT.md](https://github.com/gen-ai-lab-f26/arsh-project/blob/main/INTENT.md).
 
-**What I started.** Before writing the claim, I sized three real pitches by hand against SEC data:
+**What I started.** Before writing the claim, I read three real pitches and checked two of them by hand against SEC data:
 
 - Whole slides are prices, spreads and ratings, which filings cannot confirm.
 - Most filing figures matched. One trailing-twelve-month revenue figure was 0.6% off, and one EBITDA figure differed because the data vendor defines it differently from the filing.
 - Two of the three decks state a number two different ways, such as a position size or a spread.
 
-So the claim covers two checks: figures against filings, and the deck against itself.
+So the first claim covered two checks: figures against filings, and the deck against itself.
+
+**November 25.** I built the SEC lookup and the deck reader, then ran the baseline on two decks. A plain chat found the numbers stated two different ways, including the position size, but said it could not see filings newer than its training data. So I cut the deck-against-itself check and kept the one a chat cannot do.
 
 **What I learned in class.** [Add.]
 
