@@ -4,7 +4,7 @@
 
 - **Team:** Arsh Jain (solo)
 - **Product Page:** https://gen-ai-lab-f26.github.io/arsh-project/
-- **Live app or demo:** [Not live yet]
+- **Live app or demo:** https://arsh-project.onrender.com (early version; needs an access code, and takes about a minute to wake up if nobody has used it for a while)
 
 ## Start here
 

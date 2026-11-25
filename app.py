@@ -106,6 +106,17 @@ def healthz() -> dict:
     return {"ok": True}
 
 
+@app.get("/healthz/sec")
+def healthz_sec() -> dict:
+    """Can this server reach SEC? Looks up one fixed issuer. Shows no secrets."""
+    try:
+        result = filing_figures(ticker="CVS")
+    except Exception as error:  # report any failure; this route exists to diagnose
+        return {"sec": "failed", "reason": f"{type(error).__name__}: {error}"[:300]}
+    found = sum(1 for fig in result["figures"] if fig.found)
+    return {"sec": "ok", "issuer": result["name"], "figures_found": found}
+
+
 @app.post("/check", response_class=HTMLResponse)
 async def check(
     deck: UploadFile = File(...),
