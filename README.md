@@ -1,10 +1,10 @@
-# [Product name]
+# PitchCheck
 
-> **One line:** [Who is it for, and what job does it do for them?]
+> **One line:** For members of a student fund's investment committee. It checks the numbers in a bond pitch against the issuer's SEC filings, and against the deck itself, before the vote.
 
-- **Team:** [Names]
-- **Product Page:** `https://gen-ai-lab-f26.github.io/[your-repo]/`
-- **Live app or demo:** [Link, if you have one]
+- **Team:** Arsh Jain (solo)
+- **Product Page:** https://gen-ai-lab-f26.github.io/arsh-project/
+- **Live app or demo:** [Not live yet]
 
 ## Start here
 

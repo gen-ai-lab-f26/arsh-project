@@ -4,9 +4,9 @@ Your agent reads this file first. Keep it short and current.
 
 ## Project
 
-- **What this builds:** [One or two sentences]
+- **What this builds:** PitchCheck reads a bond pitch, checks its reported financial figures against the issuer's SEC filings, and lists numbers the deck states two different ways. A person reviews every flag.
 - **Who it's for:** see `INTENT.md`
-- **Stack:** [For example: Python 3.12, one HTML page, the OpenRouter API]
+- **Stack:** Planned: Python 3.11, SEC's public company-facts API, the OpenRouter API to pull the claims out of a pitch, one HTML page. [Update when the first code lands.]
 - **Product Page:** `docs/index.md`, plain Markdown that GitHub Pages turns into the team's public page. Fill it only with facts from `INTENT.md` and `TEST_LOG.md`, and leave a [bracket] where the team has no answer yet.
 
 ## Commands
@@ -24,3 +24,5 @@ Your agent reads this file first. Keep it short and current.
 5. **No secrets in code.** Read keys from `.env`. Add new variable names to `.env.example`, never their values.
 6. **Ask before acting on the world.** Don't send messages, spend money or publish anything without a person's OK.
 7. **Stop when stuck.** If a fix fails twice, stop, say what failed, and ask before trying a third way.
+8. **The model never supplies a financial figure.** Filing numbers come from SEC data and arithmetic comes from code. The model only reads the pitch and lists what it claims.
+9. **This repo is public.** Never commit a real pitch, a fund holding, a person's name or an email. Real pitches used for testing stay in `pitches/`, which Git ignores.

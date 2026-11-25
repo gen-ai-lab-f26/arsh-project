@@ -1,19 +1,21 @@
-# [Product name]
+# PitchCheck
 
 <!-- This file is your Product Page. Replace everything in [brackets] with your own words.
      Your page updates about a minute after you commit. Never put an API key here: this page is public. -->
 
-[One sentence: who it's for, and the job it does for them.]
+PitchCheck checks the numbers in a bond pitch against the issuer's SEC filings, and against the deck itself, before a student fund's investment committee votes on it.
 
-[See it work](#see-it-work) · [Try it](https://example.com) · [Code](https://github.com/gen-ai-lab-f26/your-repo)
+**Status, November 24:** the product brief is written. The tool is not built yet.
+
+[See it work](#see-it-work) · [Try it: no link yet] · [Code](https://github.com/gen-ai-lab-f26/arsh-project)
 
 ## Who it's for
 
-**The person:** [A real person or group you can test with before December 8.]
+**The person:** Members of the investment committee (IC) of the fixed income fund in NYU Stern's student-managed investment fund (MPSIF). Every member writes bond pitches and reviews the others' before the vote.
 
-**Today:** [How they do this job now, and what is slow, manual or broken about it.]
+**Today:** A member builds a deck from company filings, data terminals and broker quotes and uploads it to the fund's shared drive. Nobody checks the numbers before the IC votes.
 
-**With [product name]:** [What changes for them in one sitting.]
+**With PitchCheck:** Paste the pitch in. A table comes back with every number, whether it matches the filing, and a link to the filing. A second list shows numbers the deck states two different ways. The reviewer reads only the flagged rows.
 
 ## See it work
 
@@ -23,17 +25,19 @@
 
 ## How it works
 
-1. [What goes in]
-2. [What the AI does]
-3. [What code checks, where a model on its own would slip]
-4. [Where a person reviews or approves]
-5. [What comes out]
+This is the plan. Nothing below runs yet.
+
+1. A bond pitch goes in as text.
+2. The AI reads the pitch and lists the numbers it claims. It never supplies a financial figure.
+3. Code pulls the issuer's reported figures from SEC's structured data and does the arithmetic: trailing twelve months, leverage and coverage. Prices, spreads and ratings are labeled "not in filings", not guessed.
+4. The writer accepts each flag or dismisses it with a reason. PitchCheck never edits the pitch.
+5. A table of every number with its status and filing link comes out, plus a list of numbers the deck states two different ways.
 
 ## Evidence
 
-Baseline: [doing it by hand, or a plain AI chat]. The full log is in [TEST_LOG.md](https://github.com/gen-ai-lab-f26/your-repo/blob/main/TEST_LOG.md).
+Baseline: [doing it by hand, or a plain AI chat]. The full log is in [TEST_LOG.md](https://github.com/gen-ai-lab-f26/arsh-project/blob/main/TEST_LOG.md).
 
-| Check | Baseline | [Product name] |
+| Check | Baseline | PitchCheck |
 | --- | --- | --- |
 | [Check 1] | [Pass or fail] | [Pass or fail] |
 | [Check 2] | [Pass or fail] | [Pass or fail] |
@@ -65,7 +69,19 @@ Baseline: [doing it by hand, or a plain AI chat]. The full log is in [TEST_LOG.m
 
 ### Ideation & build studio · November 24
 
-[Your initial idea, repo setup, what you started building, and what you learned in class.]
+**Idea.** A fact-checker for the bond pitches my fund's IC votes on. Nobody checks the numbers in a pitch today.
+
+**Repo setup.** Made this repo from the class template, turned on the Product Page, and wrote the product brief in [INTENT.md](https://github.com/gen-ai-lab-f26/arsh-project/blob/main/INTENT.md).
+
+**What I started.** Before writing the claim, I sized three real pitches by hand against SEC data:
+
+- Whole slides are prices, spreads and ratings, which filings cannot confirm.
+- Most filing figures matched. One trailing-twelve-month revenue figure was 0.6% off, and one EBITDA figure differed because the data vendor defines it differently from the filing.
+- Two of the three decks state a number two different ways, such as a position size or a spread.
+
+So the claim covers two checks: figures against filings, and the deck against itself.
+
+**What I learned in class.** [Add.]
 
 ### Build studio · December 1
 
@@ -77,6 +93,6 @@ Baseline: [doing it by hand, or a plain AI chat]. The full log is in [TEST_LOG.m
 
 ## Who did what
 
-[Name: what they owned. One line each.]
+Arsh Jain: everything (solo).
 
-Models and tools used: [List them.]
+Models and tools used: Claude Code as the coding agent, for the repo setup, the pitch sizing and the first draft of the brief. [Add the model the product runs on once it is chosen.]

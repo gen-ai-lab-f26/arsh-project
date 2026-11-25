@@ -7,6 +7,9 @@
 secrets.*
 credentials.json
 
+# Real pitches used for testing (the repo is public)
+pitches/
+
 # Agent state
 .claude/
 .codex/
